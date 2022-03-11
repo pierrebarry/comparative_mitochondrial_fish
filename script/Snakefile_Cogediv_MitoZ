@@ -1,0 +1,235 @@
+## IMPORT PACKAGES
+
+import os
+#import numpy as np
+from itertools import product
+
+
+## Get heterozygosity estimated from GenomeScope as prior in GATK - HaplotypeCaller
+#def get_heterozygosity(sample):
+#	with open("/GenomeScope/Summary_GenomeScope.txt","r") as f:
+#		for line in f:
+#			if line.split(";")[3]==sample:
+#				het=line.split(";")[5]
+#	return het
+#get_heterozygosity("DlabrFa3")	
+
+def get_input_gvcf(species):
+	SAMPLES_sp=[SAMPLES[i] for i in range(len(SAMPLES)) if SAMPLES[i][0:5]=="species"]
+	L=[]
+	for i in range(len(SAMPLES_sp)):
+		L+=["/share/tycho_poolz1/pagagnaire/COGEDIV/pbarry/{"+species+"}/VariantCalling/"+SAMPLES_sp[i]+"_gvcf_first.g.vcf"]
+	L=np.asmatrix(L)
+	with open("/share/tycho_poolz1/pagagnaire/COGEDIV/pbarry/"+species+"/VariantCalling/name.list","wb") as f:
+		for line in L:
+			np.savetxt(f,line,fmt='%s',delimiter=";")
+
+def get_input_recal_gvcf(species):
+	SAMPLES_sp=[SAMPLES[i] for i in range(len(SAMPLES)) if SAMPLES[i][0:5]=="species"]
+	L=[]
+	for i in range(len(SAMPLES_sp)):
+		L+=["/share/tycho_poolz1/pagagnaire/COGEDIV/pbarry/{"+species+"}/VariantCalling/"+SAMPLES_sp[i]+"_gvcf_recal.g.vcf"]
+	L=np.asmatrix(L)
+	with open("/share/tycho_poolz1/pagagnaire/COGEDIV/pbarry/"+species+"/VariantCalling/name.list","wb") as f:
+		for line in L:
+			np.savetxt(f, line, fmt='%s', delimiter=";")
+
+## COMPUTE COMBINATION OF SAMPLES AND SPECIES
+
+test=1
+if test==1:
+    #SAMPLES=config["SAMPLE"]
+    #SPECIES=config["SAMPLE"][0:5]
+
+    def filter_combinator(combinator, blacklist):
+        def filtered_combinator(*args, **kwargs):
+            for wc_comb in combinator(*args, **kwargs):
+                # Use frozenset instead of tuple
+                # in order to accomodate
+                # unpredictable wildcard order
+                if frozenset(wc_comb) not in blacklist:
+                   yield wc_comb
+        return filtered_combinator
+
+    #forbidden={'start'}
+    #for i in range(len(SPECIES)):
+    #    for j in range(len(SAMPLES)):
+    #        if SPECIES[i]!=SAMPLES[j][0:5]:
+    #           forbidden|={frozenset({("sample",SAMPLES[j]),("species",SPECIES[i])})}
+
+
+    #forbidden.remove('start')
+    #filtered_product = filter_combinator(product, forbidden)
+else: 
+    SPECIES=[
+            'Spilc',
+	     'Eencr',
+	     'Hgutt',
+	     'Mmerl',
+	     'Scabr',
+	     'Dlabr',
+	     'Msurm',
+             'Lmorm',
+	     'Dpunt',
+	     'Peryt',
+	     'Cjuli',
+	     'Ssard',
+	     'Pminu',
+	     'Cgale',
+	     'Aboye',
+	     'Afall',
+	     'Gnige',
+	     'Scine',
+	     'Lbude',
+	     'Styph'
+	     'Scant'
+	    ]
+    LOCA=['Fa',
+	  'Li',
+	  'Mu',
+	  'Fa',
+	  'Ga'
+	  ]
+
+    NUMBER=['1','2','3','4','5','6']
+    
+    SAMPLES=[]
+    for i in range(len(SPECIES)):
+        for j in range(len(LOCA)): 
+            for k in range(len(NUMBER)):
+                SAMPLES+=[SPECIES[i]+LOCA[j]+NUMBER[k]]
+  
+
+    #SAMPLES_1=[SAMPLES[i] for i in range(len(SPECIES)*len(NUMBER)*len(LOCA)) if os.path.exists('/share/tycho_poolz1/pagagnaire/backup/COGEDIV_Save/NovaSeq6000_S4_COGEDIV_Run1_50-202125337_WGS/'+SAMPLES[i]+'_R1_001.fastq.gz')==True] 
+    #SAMPLES_2=[SAMPLES[i] for i in range(len(SPECIES)*len(NUMBER)*len(LOCA)) if os.path.exists('/share/tycho_poolz1/pagagnaire/backup/COGEDIV_Save/NovaSeq6000_S4_COGEDIV_Run2_50-269605115_WGS/'+SAMPLES[i]+'_R1_001.fastq.gz')==True]
+   
+    for i in range(len(SAMPLES_1)):
+        if SAMPLES_1[i][0:4]=="Dlab":
+           SAMPLES_1[i]=str("Dlabr"+SAMPLES_1[i][4:6]+SAMPLES_1[i][6])
+
+    SAMPLES=SAMPLES_1+SAMPLES_2
+
+    SPECIES=[
+                'Spilc'
+		# 'Eencr',
+		# 'Hgutt',
+		# 'Mmerl',
+		# 'Scabr',
+		# 'Dlabr'
+		# 'Msurm',
+		# 'Lmorm',
+		# 'Dpunt',
+		# 'Peryt',
+		# 'Cjuli',
+		# 'Ssard',
+		# 'Cgale',
+		# 'Scine',
+		# 'Lbude',
+		# 'Styph'
+		# 'Scant'
+	   ]
+    
+    #SAMPLES=['DpuntLi4B',
+    #         'HguttGa6B',
+    #         'HguttMu3B',
+    #	     'ScabrGa5B',
+    #         'StyphGa4B']
+
+    #SPECIES=['Dpunt',
+    # 	     'Hgutt',
+    #         'Scabr',
+    #	     'Styph']
+
+    def filter_combinator(combinator, blacklist):
+        def filtered_combinator(*args, **kwargs):
+            for wc_comb in combinator(*args, **kwargs):
+                # Use frozenset instead of tuple
+                # in order to accomodate
+                # unpredictable wildcard order
+                if frozenset(wc_comb) not in blacklist:
+                   yield wc_comb
+        return filtered_combinator
+	
+    forbidden={'start'}
+    for i in range(len(SPECIES)):
+        for j in range(len(SAMPLES)):
+            if SPECIES[i]!=SAMPLES[j][0:5]:
+               forbidden|={frozenset({("sample",SAMPLES[j]),("species",SPECIES[i])})}
+
+
+    forbidden.remove('start')
+    filtered_product = filter_combinator(product, forbidden)
+
+SPECIES=['Afall']
+SAMPLES=[
+	'AfallLi1','AfallLi2','AfallLi3','AfallLi5','AfallLi6',
+	'AfallFa1','AfallFa3','AfallFa4','AfallFa5','AfallFa6',
+	'AfallGa1','AfallGa2','AfallGa3','AfallGa4'
+	]
+
+print(SPECIES)
+print(SAMPLES)
+
+#All
+rule all:
+	input:
+		#out=expand("/DATA/sdc1/Pierre/MitoZ/{species}/{sample}",sample=SAMPLES,species=SPECIES))
+		output_file=expand("/home/labosea1/MitoZ/done/{species}_{sample}_done",sample=SAMPLES,species=SPECIES)
+		#blast_out=expand("/DATA/sdc1/Pierre/MitoZ/{species}/{sample}/mitoz_findmitoscaf.result/results.out",sample=SAMPLES,species=SPECIES)
+
+## MitoZ - MBB container -need to load MitoZ singularity image
+
+rule mitoz:
+	input:
+		fastp_file="/home/labosea1/MitoZ/data_tmp/",
+		result_file="/home/labosea1/MitoZ/result_tmp/",
+		mitoz_image="/home/labosea1/MitoZ/ok_mitoz/mitoz.simg",
+		config="/home/labosea1/MitoZ/ok_mitoz/params.yml"
+	output:
+		output_file="/home/labosea1/MitoZ/done/{species}_{sample}_done"
+		#out=directory("/DATA/sdc1/Pierre/MitoZ/{species}/{sample}")
+	message:
+		"Run MitoZ : {wildcards.sample}"
+	params:
+		threads=12
+	shell:
+		"cd /home/labosea1/MitoZ/result_tmp && "
+		"singularity exec "
+		"-B {input.fastp_file}:/Data "
+		"-B {input.result_file}:/Results "
+		"{input.mitoz_image} "
+		"snakemake -s /workflow/Snakefile all "
+		"--configfile {input.config} "
+		"--cores {params.threads} || true && "
+		"echo 'labosea1!' | sudo -S mkdir /DATA/sdb1/Pierre/MitoZ/{wildcards.species}/{wildcards.sample} && "
+                #"echo 'labosea1!' | sudo -S mkdir {output.out} && "
+		"echo 'labosea1!' | sudo -S mv /home/labosea1/MitoZ/result_tmp/* /DATA/sdb1/Pierre/MitoZ/{wildcards.species}/{wildcards.sample} && "
+		"echo 'labosea1!' | sudo -S rm -r /home/labosea1/MitoZ/data_tmp/* && "
+		"echo 'labosea1!' | sudo -S rm /DATA/sdb1/Pierre/MitoZ/{wildcards.species}/{wildcards.sample}/megahit_PE/assembly.contigs.fa && "
+		"echo 'labosea1!' | sudo -S rm -r /DATA/sdb1/Pierre/MitoZ/{wildcards.species}/{wildcards.sample}/megahit_PE/intermediate_contigs/ && "
+		"du -sh /DATA/sdb1/Pierre/MitoZ/{wildcards.species}/{wildcards.sample} && "
+		"touch {output.output_file}"		
+
+ruleorder: mitoz > blast_mitoz
+
+rule blast_mitoz:
+	input:
+		result_file="/home/labosea1/MitoZ/result_tmp/",
+		output_file="/home/labosea1/MitoZ/done/{species}_{sample}_done"
+	output:
+		blast_out="/DATA/sdc1/Pierre/MitoZ/{species}/{sample}/mitoz_findmitoscaf.result/results.out"
+	message:
+		"Blast MitoZ : {wildcards.sample}"
+	priority: 100
+	shell:
+		"""awk '/^>/{{print ">" "{wildcards.sample}"; next}} 1' /home/labosea1/MitoZ/result_tmp/mitoz_findmitoscaf.result/mitoz_findmitoscaf.mitogenome.fa > /home/labosea1/MitoZ/result_tmp/mitogenome_{wildcards.sample}.fa && """
+		"mv {input.result_file}* /DATA/sdc1/Pierre/MitoZ/{wildcards.species}/{wildcards.sample}/ && "
+		"/usr/local/anaconda/bin/blastn " 
+		"-query /DATA/sdc1/Pierre/MitoZ/{wildcards.species}/{wildcards.sample}/mitoz_findmitoscaf.result/mitoz_findmitoscaf.hmmtblout.besthit.sim.filtered.high_abundance_10.0X.reformat.sorted.Not-picked.fa " 
+		"-out {output.blast_out} " 
+		"-db nt "
+		"-remote "
+		"-outfmt '6 qseqid stitle length pident nident mismatch gapopen gaps bitscore score evalue' && "
+		"rm -r /home/labosea1/MitoZ/data_tmp/* && "
+		"rm /DATA/sdc1/Pierre/MitoZ/{wildcards.species}/{wildcards.sample}/megahit_PE/assembly.contigs.fa && "
+		"rm -r /DATA/sdc1/Pierre/MitoZ/{wildcards.species}/{wildcards.sample}/megahit_PE/intermediate_contigs/"
